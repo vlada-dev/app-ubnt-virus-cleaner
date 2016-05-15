@@ -1,0 +1,47 @@
+<html>
+<head>
+
+</head>
+<body>
+
+<h1>Help</h1>
+
+<p>This app helps with removing virus attacking some Ubiquiti devices with obsolete firmware version. <b>This is not official Ubiquiti app, it's free but its usage is at your own risk!</b></p>
+
+<h2>How to start?</h2>
+
+<ul>
+    <li>Enter IP addresses of your Ubiquiti devices with username and password (form "ip,username,password", one ip per line)</li>
+    <li>You can specify additional pair of login credentials. The app will try alternative login pairs if original login credentials fail. You can leave it empty.</li>
+    <li>If you want to run app in passive mode (no action), uncheck both checkboxes.</li>
+    <li>If you want to just remove virus without firmware upgrade, you can check only "Remove virus" checkbox</li>
+    <li>If you want to just remove virus and run firmware upgrade, check both checkboxes</li>
+
+</ul>
+
+<h2>How it works?</h2>
+
+<ul>
+    <li>App prepares the list of IP addresses to connect</li>
+    <li>After successful login, app reads firmware version</li>
+    <li>App checks /etc/persistent directory for presence of the virus</li>
+    <li>App removes all virus files and reboot (if firmware upgrade is enabled, upgrade is started instead reboot)</li>
+    <li>App tried to reconnect upgraded devices to show you updated version of firmware. You can verify if upgrade was successful.</li>
+
+
+</ul>
+
+<h2>Tested devices</h2>
+
+<ul>
+    <li>Airmax M</li>
+    <li>App will probably work on Airmax AC, Airgateway, Airfiber, ToughSwitch models but it hasn't been tested yet.</li>
+
+
+</ul>
+
+
+
+</body>
+
+</html>
