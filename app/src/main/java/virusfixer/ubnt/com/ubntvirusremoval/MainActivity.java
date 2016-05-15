@@ -25,6 +25,7 @@ import virusfixer.ubnt.com.ubntvirusremoval.networking.Checker;
 public class MainActivity extends AppCompatActivity {
 
     private static final int MAX_IP_LIST_SIZE = 65536;
+    private static final int DEFAULT_SSH_PORT = 22;
     ArrayList<Device> mDeviceList;
     int mTotalIp;
     private static final Pattern PATTERN = Pattern.compile(
@@ -171,6 +172,7 @@ public class MainActivity extends AppCompatActivity {
             return false;
         }
         String ip, ipUsername, ipPassword;
+        int port;
         for(String ipLine: ipList) {
 
             if (ipLine.length() == 0) {
@@ -192,6 +194,18 @@ public class MainActivity extends AppCompatActivity {
                 ip = ipLine;
                 ipUsername = null;
                 ipPassword = null;
+            }
+
+            if (ip.contains(":")) {
+                String[] sp = ip.split(":",2);
+                ip = sp[0];
+                try {
+                    port = Integer.valueOf(sp[1]);
+                } catch (NumberFormatException e) {
+                    port = DEFAULT_SSH_PORT;
+                }
+            } else {
+                port = DEFAULT_SSH_PORT;
             }
 
             if (ip.contains("/")) {
@@ -232,9 +246,9 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 }
 
-                for (int i=firstIp;i<lastIp;i++) {
+                for (int i=firstIp;i<=lastIp;i++) {
                     try {
-                        mDeviceList.add(new Device(inetNtoa(i), ipUsername, ipPassword));
+                        mDeviceList.add(new Device(inetNtoa(i), ipUsername, ipPassword, port));
                         mTotalIp++;
                     } catch (UnknownHostException e) {
                         e.printStackTrace();
@@ -245,7 +259,7 @@ public class MainActivity extends AppCompatActivity {
                     showToast("IP " + ip + " is not in correct format!");
                     return false;
                 }
-                mDeviceList.add(new Device(ip, ipUsername, ipPassword));
+                mDeviceList.add(new Device(ip, ipUsername, ipPassword, port));
                 mTotalIp++;
 
             }

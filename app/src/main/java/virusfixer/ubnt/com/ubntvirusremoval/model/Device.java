@@ -32,17 +32,19 @@ public class Device {
     private String firmwareVersion;
     private int status;
     private SSH sshClient;
+    private int mPort;
 
 
     public static final int FIRMWARE_VERSION_SEGMENT_COUNT = 3;
 
-    public Device(String ip, String ipUsername, String ipPassword) {
+    public Device(String ip, String ipUsername, String ipPassword, int port) {
         this.ip = ip;
         this.username = ipUsername;
         this.password = ipPassword;
+        this.mPort = port;
         this.firmwareVersion = "";
         this.status = WAITING;
-        this.sshClient = new SSH(this.username, this.password, this.ip, 22);
+
     }
 
     public String getIp() {
@@ -95,6 +97,7 @@ public class Device {
 
     public void check(ArrayList<Login> mLoginList, boolean removeVirus, boolean upgradeFirmware) throws ConnectionFailedException, JSchException, LoginException {
         status = CONNECTING;
+        this.sshClient = new SSH(this.username, this.password, this.ip, this.mPort);
         if (username != null && password != null) {
             try {
                 firmwareVersion = sshClient.getFirmwareVersion();
@@ -176,7 +179,11 @@ public class Device {
                 status = VIRUS_NOT_DETECTED;
             }
         }
+        sshClient.disconnect();
+        sshClient = null;
     }
+
+
 
     private String getFirmwareDownloadLink() {
         if (firmwareVersion != null && firmwareVersion.length()>5) {

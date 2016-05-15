@@ -269,4 +269,14 @@ public class SSH
         String res = executeWithRetry("rm /tmp/*.bin;wget -O/tmp/fwupdate.bin " + firmwareUpgradeLink + " && /usr/bin/ubntbox fwupdate.real -m /tmp/fwupdate.bin 2>&1", 3);
         Log.v("UPDATE", res);
     }
+
+	public void disconnect() {
+		try {
+			if (this.session != null) {
+				session.disconnect();
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+	}
 }

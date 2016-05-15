@@ -17,7 +17,7 @@ import virusfixer.ubnt.com.ubntvirusremoval.model.Login;
  */
 public class Checker {
 
-    public static final int MAX_THREADS = 20;
+    public static final int MAX_THREADS = 10;
     private final MainActivity mActivity;
     private final ArrayList<Login> mLoginList;
     private final boolean mUpgradeFirmware;
