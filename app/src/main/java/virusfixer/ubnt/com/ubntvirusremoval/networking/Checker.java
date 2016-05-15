@@ -1,5 +1,7 @@
 package virusfixer.ubnt.com.ubntvirusremoval.networking;
 
+import android.widget.TextView;
+
 import com.jcraft.jsch.JSchException;
 
 import java.util.ArrayList;
@@ -7,6 +9,7 @@ import java.util.LinkedList;
 import java.util.Queue;
 
 import virusfixer.ubnt.com.ubntvirusremoval.MainActivity;
+import virusfixer.ubnt.com.ubntvirusremoval.R;
 import virusfixer.ubnt.com.ubntvirusremoval.exception.ConnectionFailedException;
 import virusfixer.ubnt.com.ubntvirusremoval.exception.LoginException;
 import virusfixer.ubnt.com.ubntvirusremoval.model.Device;
@@ -28,6 +31,7 @@ public class Checker {
     Queue<Device> mDevices=new LinkedList<>();
     Thread[] taskList = new Thread[MAX_THREADS];
     private int mDevicesFinished;
+    private int mDevicesInfected;
 
     public Checker(MainActivity activity, ArrayList<Login> loginList, boolean removeVirus, boolean upgradeFirmware) {
         this.mActivity = activity;
@@ -41,7 +45,8 @@ public class Checker {
         mDevices.addAll(list);
         mTotalDevices = list.size();
         mDevicesFinished = 0;
-        mActivity.setProgressBar(0);
+        mDevicesInfected = 0;
+        setCounters();
 
             for (int i = 0; i < MAX_THREADS; i++) {
                 if (mDevices.size()>0) {
@@ -59,7 +64,14 @@ public class Checker {
             mDevices.add(d);
         } else {
             mDevicesFinished++;
+
         }
+
+        if (d.isInfected()) {
+            mDevicesInfected++;
+        }
+
+
 
 
         notifyFinished(pos);
@@ -80,7 +92,8 @@ public class Checker {
     }
 
     public void notifyFinished(int position) {
-        mActivity.setProgressBar(Math.round((mDevicesFinished/(mTotalDevices*1.0f))*100));
+
+        setCounters();
         int activeThreads = 0;
         taskList[position] = null;
         for(int i=0;i<MAX_THREADS;i++) {
@@ -98,6 +111,17 @@ public class Checker {
             //done
             isFinished = true;
             mActivity.finished();
+
+        }
+    }
+
+    private void setCounters() {
+        mActivity.setProgressBar(Math.round((mDevicesFinished/(mTotalDevices*1.0f))*100));
+        try {
+            ((TextView) mActivity.findViewById(R.id.textTotal)).setText(String.valueOf(mTotalDevices));
+            ((TextView) mActivity.findViewById(R.id.textTested)).setText(String.valueOf(mDevicesFinished));
+            ((TextView) mActivity.findViewById(R.id.textInfected)).setText(String.valueOf(mDevicesInfected));
+        } catch (NullPointerException ignored) {
 
         }
     }
@@ -129,6 +153,7 @@ public class Checker {
                 catch(LoginException | ConnectionFailedException | JSchException e)
                 {
                     e.printStackTrace();
+                    dev.releaseSsh();
 
                     mActivity.runOnUiThread(new Runnable() {
                         @Override
@@ -137,6 +162,7 @@ public class Checker {
 
                         }
                     });
+                    return;
                 }
 
                 mActivity.runOnUiThread(new Runnable() {

@@ -38,6 +38,9 @@
 
         android:onClick="stop"
         android:text="Stop"/>
+
+
+
     <Button
         android:id="@+id/closeButton"
         android:layout_width="match_parent"
@@ -46,6 +49,57 @@
         android:visibility="gone"
         android:onClick="close"
         android:text="Close"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:textAlignment="center">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Total:"
+
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="64"
+            android:id="@+id/textTotal"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="10dip"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Tested:"
+
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="32"
+            android:id="@+id/textTested"
+            android:layout_gravity="center_horizontal"
+            android:layout_marginRight="10dip"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Infected:"
+
+            android:layout_gravity="center_horizontal" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="64"
+            android:id="@+id/textInfected"
+            android:layout_gravity="center_horizontal" />
+
+
+
+    </LinearLayout>
 
 
 

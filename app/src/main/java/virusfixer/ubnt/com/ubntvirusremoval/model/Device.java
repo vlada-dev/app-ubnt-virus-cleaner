@@ -1,7 +1,12 @@
 package virusfixer.ubnt.com.ubntvirusremoval.model;
 
+import android.util.Log;
+
 import com.jcraft.jsch.JSchException;
 
+import java.io.IOException;
+import java.net.InetAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 
 import virusfixer.ubnt.com.ubntvirusremoval.exception.ConnectionFailedException;
@@ -25,6 +30,7 @@ public class Device {
     public static final int VIRUS_REMOVED_UPGRADED = 10;
     public static final int VIRUS_NOT_DETECTED_UPGRADING = 11;
     public static final int REBOOT = 12;
+    private static final int CONNECT_FAILED = 13;
     String ip;
     String username;
     String password;
@@ -33,6 +39,7 @@ public class Device {
     private int status;
     private SSH sshClient;
     private int mPort;
+    private boolean mIsInfected;
 
 
     public static final int FIRMWARE_VERSION_SEGMENT_COUNT = 3;
@@ -83,6 +90,8 @@ public class Device {
                 return "Firmware upgraded, rebooting";
             case LOGIN_FAILED:
                 return "Login failed";
+            case CONNECT_FAILED:
+                return "Unreachable";
         }
         return "Unknown";
     }
@@ -97,6 +106,20 @@ public class Device {
 
     public void check(ArrayList<Login> mLoginList, boolean removeVirus, boolean upgradeFirmware) throws ConnectionFailedException, JSchException, LoginException {
         status = CONNECTING;
+        mIsInfected = false;
+        Log.v("UBNT", "Connecting " + ip);
+
+        //check if reachable
+        try {
+            if (!InetAddress.getByName(ip).isReachable(5000)) {
+                status = CONNECT_FAILED;
+                return;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+
         this.sshClient = new SSH(this.username, this.password, this.ip, this.mPort);
         if (username != null && password != null) {
             try {
@@ -105,6 +128,8 @@ public class Device {
                 //reset username and password
                 username = null;
                 password = null;
+            } catch (ConnectionFailedException | JSchException e) {
+                status = CONNECT_FAILED;
             }
         }
         if (username == null || password == null) {
@@ -114,6 +139,8 @@ public class Device {
                     firmwareVersion = sshClient.getFirmwareVersion();
                 } catch (LoginException e) {
                     continue;
+                } catch (ConnectionFailedException | JSchException e) {
+                    status = CONNECT_FAILED;
                 }
                 username = l.getUsername();
                 password = l.getPassword();
@@ -131,6 +158,7 @@ public class Device {
         //check infection status
         if (sshClient.isVirusInfected()) {
             status = VIRUS_DETECTED;
+            mIsInfected = true;
 
             if (removeVirus) {
 
@@ -292,7 +320,7 @@ public class Device {
     }
 
     public boolean hasWarningStatus() {
-        return status == VIRUS_DETECTED || status == LOGIN_FAILED;
+        return status == VIRUS_DETECTED || status == LOGIN_FAILED || status == CONNECT_FAILED;
     }
 
     public String getUsername() {
@@ -305,5 +333,20 @@ public class Device {
 
     public int getStatus() {
         return status;
+    }
+
+    public void releaseSsh() {
+        if (this.sshClient != null) {
+            try {
+                sshClient.disconnect();
+            } catch (Exception ignored) {
+
+            }
+            sshClient = null;
+        }
+    }
+
+    public boolean isInfected() {
+        return mIsInfected;
     }
 }
