@@ -6,7 +6,8 @@ import com.jcraft.jsch.JSchException;
 
 import java.io.IOException;
 import java.net.InetAddress;
-import java.net.UnknownHostException;
+import java.net.InetSocketAddress;
+import java.net.Socket;
 import java.util.ArrayList;
 
 import virusfixer.ubnt.com.ubntvirusremoval.exception.ConnectionFailedException;
@@ -104,20 +105,31 @@ public class Device {
         return canRetry;
     }
 
+    private boolean ping(String ip, int count) {
+        Process p1 = null;
+        try {
+            p1 = Runtime.getRuntime().exec("ping -c " +String.valueOf(count) + " " + ip);
+            int returnVal = p1.waitFor();
+            if (returnVal>0) {
+                return false;
+            }
+        } catch (IOException | InterruptedException e) {
+            return true;
+        }
+        return true;
+
+    }
+
     public void check(ArrayList<Login> mLoginList, boolean removeVirus, boolean upgradeFirmware) throws ConnectionFailedException, JSchException, LoginException {
         status = CONNECTING;
         mIsInfected = false;
         Log.v("UBNT", "Connecting " + ip);
 
-        //check if reachable
-        try {
-            if (!InetAddress.getByName(ip).isReachable(5000)) {
-                status = CONNECT_FAILED;
-                return;
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
+        if (!ping(ip, 1) && !ping(ip,3)) {
+            status = CONNECT_FAILED;
+            return;
         }
+
 
 
         this.sshClient = new SSH(this.username, this.password, this.ip, this.mPort);
@@ -216,11 +228,11 @@ public class Device {
     private String getFirmwareDownloadLink() {
         if (firmwareVersion != null && firmwareVersion.length()>5) {
             if (firmwareVersion.startsWith("XM")) {
-                return "http://dl.ubnt.com/firmwares/XN-fw/v5.6.4/XM.v5.6.4.28924.160331.1253.bin";
+                return "http://dl.ubnt.com/firmwares/XN-fw/v5.6.5/XM.v5.6.5.29033.160515.2119.bin";
             } else if (firmwareVersion.startsWith("TI")) {
-                return "http://dl.ubnt.com/firmwares/XN-fw/v5.6.4/TI.v5.6.4.28924.160331.1227.bin";
+                return "http://dl.ubnt.com/firmwares/XN-fw/v5.6.5/TI.v5.6.5.29033.160515.2058.bin";
             } else if (firmwareVersion.startsWith("XW")) {
-                return "http://dl.ubnt.com/firmwares/XW-fw/v5.6.4/XW.v5.6.4.28924.160331.1238.bin";
+                return "http://dl.ubnt.com/firmwares/XW-fw/v5.6.5/XW.v5.6.5.29033.160515.2108.bin";
             } else if (firmwareVersion.startsWith("AirGW.")) {
                 return "http://dl.ubnt.com/firmwares/airgateway/v1.1.6/AirGW.v1.1.6.28062.150731.1510.bin";
             } else if (firmwareVersion.startsWith("AirGWP.")) {
@@ -249,7 +261,7 @@ public class Device {
     private boolean isUpgradable() {
         if (firmwareVersion != null && firmwareVersion.length()>5) {
             if (firmwareVersion.startsWith("XM") || firmwareVersion.startsWith("TI") || firmwareVersion.startsWith("XW")) {
-                return !hasMinVersion("5.6.4");
+                return !hasMinVersion("5.6.5");
 
             } else if (firmwareVersion.startsWith("AirGW.") || firmwareVersion.startsWith("AirGWP.")) {
                 return !hasMinVersion("1.1.6");
