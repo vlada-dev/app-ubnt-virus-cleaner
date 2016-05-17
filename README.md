@@ -2,7 +2,8 @@
 
 This app helps with removing MF virus attacking some Ubiquiti devices with obsolete firmware version.
 
-**This is not official Ubiquiti app, its usage is at your own risk!**
+**Only the APK package is currently updated. Source code is now obsolete and I won't update it (I don't want to disclose virus removal procedure to virus authors).**
+
 
 ## How to start?
 
@@ -13,28 +14,10 @@ This app helps with removing MF virus attacking some Ubiquiti devices with obsol
     * If you want to just remove virus and run firmware upgrade, check both checkboxes
 
 
-## How it works?
-
-
-    * App prepares the list of IP addresses to connect
-    * After successful login, app reads firmware version
-    * App checks /etc/persistent directory for presence of the virus
-    * App removes all virus files and reboot (if firmware upgrade is enabled, upgrade is started instead reboot)
-    * App tried to reconnect upgraded devices to show you updated version of firmware. You can verify if upgrade was successful.
-
-
-
-
 ##  Tested devices
 
 
     * Airmax M
     * App will probably work on Airmax AC, Airgateway, Airfiber, ToughSwitch models but it hasn't been tested yet.
 
-
-##  Compilation
-
-
-    * Open project in Android Studio
-    * Create APK package and install in your Android
 
